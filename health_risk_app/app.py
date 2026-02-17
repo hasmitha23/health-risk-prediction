@@ -29,8 +29,32 @@ scaler = pickle.load(open(os.path.join(BASE_DIR, "model", "scaler.pkl"), "rb"))
 
 
 # DB Connection
-def get_db():
-    return sqlite3.connect("database.db")
+def init_db():
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        email TEXT UNIQUE,
+        password TEXT
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS predictions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        risk TEXT,
+        timestamp TEXT,
+        report_data TEXT
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+
 
 @app.route("/", methods=["GET", "POST"])
 def login():
@@ -440,5 +464,7 @@ def view_report(report_id):
 
 if __name__ == "__main__":
         app.run(debug=True)
+init_db()
+
 
 
