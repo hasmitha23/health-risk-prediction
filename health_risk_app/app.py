@@ -19,7 +19,7 @@ app = Flask(__name__)
 app.secret_key = "healthrisksecret"
 UPLOAD_FOLDER = "static/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
+init_db()
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -464,7 +464,8 @@ def view_report(report_id):
 
 if __name__ == "__main__":
         app.run(debug=True)
-init_db()
+
+
 
 
 
