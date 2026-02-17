@@ -1,0 +1,93 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="result-container">
+
+    <h1>Health Risk Analysis</h1>
+
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+        <div class="summary-card high">
+            <h3>Risk Level</h3>
+            <p>{{ report.risk }}</p>
+        </div>
+
+        <div class="summary-card">
+            <h3>Status</h3>
+            <p>Analysis Completed</p>
+        </div>
+    </div>
+
+    <!-- Precautions -->
+    <div class="precaution-card">
+        <h2>Recommended Precautions</h2>
+        <p>{{ report.precaution }}</p>
+    </div>
+
+    <!-- Charts -->
+    <div class="chart-grid">
+        <div class="chart-card">
+            <h3>Risk Distribution</h3>
+            <canvas id="riskPie"></canvas>
+        </div>
+
+        <div class="chart-card">
+            <h3>Risk Probability</h3>
+            <canvas id="riskBar"></canvas>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="action-row">
+        <a href="/report_preview">
+            <button class="primary-btn">Report Preview</button>
+        </a>
+    </div>
+
+    <!-- Disclaimer -->
+    <p class="disclaimer">
+        ⚠️ This prediction is generated using machine learning models and is not a medical diagnosis.
+    </p>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // ✅ Global-safe variable (NO redeclare ever)
+    window.riskProbs = JSON.parse('{{ report.probs | tojson }}');
+
+    new Chart(document.getElementById("riskPie"), {
+        type: "pie",
+        data: {
+            labels: ["Low", "Moderate", "High"],
+            datasets: [{
+                data: [
+                    window.riskProbs.Low,
+                    window.riskProbs.Moderate,
+                    window.riskProbs.High
+                ]
+            }]
+        }
+    });
+
+    new Chart(document.getElementById("riskBar"), {
+        type: "bar",
+        data: {
+            labels: ["Low", "Moderate", "High"],
+            datasets: [{
+                label: "Risk Probability (%)",
+                data: [
+                    window.riskProbs.Low,
+                    window.riskProbs.Moderate,
+                    window.riskProbs.High
+                ]
+            }]
+        }
+    });
+</script>
+
+
+
+
+{% endblock %}

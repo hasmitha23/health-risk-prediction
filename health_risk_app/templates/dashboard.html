@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+{% block content %}
+<html>
+<head>
+    <title>Dashboard | Health Risk Prediction</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<div class="dashboard-container">
+
+    <header class="dashboard-header">
+        <h2>🧬 Health Risk Prediction</h2>
+        <span>Welcome, {{ user[1] }}</span>
+    </header>
+
+    <main class="dashboard-content">
+        <h1>Your Health. Our Intelligence.</h1>
+
+        <p class="tagline">
+            This system uses machine learning to analyze vital signs and
+            predict potential health risks early.
+        </p>
+
+        <a href="/predict">
+            <button class="primary-btn">Start Health Assessment</button>
+        </a>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>📊 ML-Based Prediction</h3>
+                <p>Trained on real clinical parameters.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>📈 Risk Visualization</h3>
+                <p>Charts & reports for clarity.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>📄 Medical-Style Report</h3>
+                <p>Downloadable PDF summary.</p>
+            </div>
+        </div>
+    </main>
+
+</div>
+<div class="history-card">
+    <h2>Previous Health Risk Assessments</h2>
+
+    {% if history %}
+        <ul class="history-list">
+            {% for item in history %}
+                <li>
+                    <a href="/view-report/{{ item[0] }}">
+                        <strong>{{ item[2] }}</strong>
+                        <span class="risk {{ item[1]|lower }}">{{ item[1] }}</span>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No previous assessments found.</p>
+    {% endif %}
+</div>
+
+
+</body>
+
+</html>
+
+{% endblock %}

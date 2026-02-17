@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="auth-card">
+    <h2>Login</h2>
+
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <form method="post">
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button>Login</button>
+    </form>
+
+    <p class="link">New user? <a href="/signup">Sign up</a></p>
+</div>
+
+{% endblock %}

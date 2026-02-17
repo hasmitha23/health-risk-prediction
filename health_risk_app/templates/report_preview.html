@@ -1,0 +1,86 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="report-preview">
+
+    <h1>Clinical Health Risk Report</h1>
+
+    <div class="meta">
+        <p><strong>Report ID:</strong> {{ report.report_id }}</p>
+        <p><strong>Date:</strong> {{ report.timestamp }}</p>
+    </div>
+
+    <hr>
+
+    <h3>Patient Details</h3>
+
+    {% if report.patient.photo %}
+        <img src="{{ url_for('static', filename=report.patient.photo) }}" class="patient-photo">
+    {% endif %}
+
+    <p><strong>Name:</strong> {{ report.patient.name }}</p>
+    <p><strong>Age:</strong> {{ report.patient.age }}</p>
+
+    <h3>Risk Summary</h3>
+    <p><strong>Risk Level:</strong> {{ report.risk }}</p>
+
+    <h3>Recommended Precautions</h3>
+    <p>{{ report.precaution }}</p>
+
+    <h3>Risk Probabilities</h3>
+    <ul>
+        <li>Low: {{ report.probs["Low"] }}%</li>
+        <li>Moderate: {{ report.probs["Moderate"] }}%</li>
+        <li>High: {{ report.probs["High"] }}%</li>
+    </ul>
+
+    <!-- Bar Chart -->
+    <div class="chart-section">
+        <canvas id="riskBar"></canvas>
+    </div>
+
+    <!-- Download -->
+    <div class="preview-actions">
+        <a href="/final-download">
+            <button class="primary-btn">Download Final PDF</button>
+        </a>
+    </div>
+
+    <p class="disclaimer">
+        ⚠️ This report is generated using predictive analytics and is not a medical diagnosis.
+    </p>
+
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const riskProbs = JSON.parse('{{ report.probs | tojson | safe }}');
+
+const barCtx = document.getElementById("riskBar").getContext("2d");
+new Chart(barCtx, {
+    type: "bar",
+    data: {
+        labels: ["Low", "Moderate", "High"],
+        datasets: [{
+            label: "Risk Probability (%)",
+            data: [
+                riskProbs.Low,
+                riskProbs.Moderate,
+                riskProbs.High
+            ],
+            backgroundColor: ["#3b82f6", "#f59e0b", "#ef4444"]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: { beginAtZero: true, max: 100 }
+        }
+    }
+});
+</script>
+
+{% endblock %}

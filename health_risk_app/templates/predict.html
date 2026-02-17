@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+{% block content %}
+<html>
+<head>
+    <title>Health Assessment | Health Risk Prediction</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<div class="app-container">
+
+    <div class="form-card">
+        <h1>Health Risk Assessment</h1>
+        <p class="subtitle">
+            Enter patient details and vital parameters for risk analysis
+        </p>
+
+        <form method="post" enctype="multipart/form-data">
+
+            <!-- Patient Details -->
+            <div class="section">
+                <h2>Patient Details</h2>
+
+                <div class="grid-3">
+                    <input name="patient_name" placeholder="Patient Name" required>
+                    <input name="age" placeholder="Age" required>
+                    <input type="file" name="photo">
+                </div>
+            </div>
+
+            <!-- Vital Parameters -->
+            <div class="section">
+                <h2>Vital Parameters</h2>
+
+                <div class="grid-3">
+                    <input name="respiratory_rate" placeholder="Respiratory Rate (12–20)" required>
+                    <input name="oxygen_saturation" placeholder="SpO₂ (95–100%)" required>
+                    <input name="o2_scale" placeholder="O₂ Scale" required>
+
+                    <input name="systolic_bp" placeholder="Systolic BP (90–120)" required>
+                    <input name="heart_rate" placeholder="Heart Rate (60–100)" required>
+                    <input name="temperature" placeholder="Temperature (36–37.2 °C)" required>
+                </div>
+
+                <div class="grid-2">
+                    <select name="on_oxygen">
+                        <option value="0">Not on Oxygen</option>
+                        <option value="1">On Oxygen</option>
+                    </select>
+
+                    <select name="consciousness">
+                        <option value="C">Alert (C)</option>
+                        <option value="P">Responds to Pain (P)</option>
+                        <option value="V">Responds to Voice (V)</option>
+                        <option value="U">Unresponsive (U)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="cta">Analyze Health Risk</button>
+        </form>
+    </div>
+
+</div>
+
+</body>
+</html>
+{% endblock %}

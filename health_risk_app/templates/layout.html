@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title if title else "Health Risk Prediction" }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+    <div class="logo">🩺 Health Risk Prediction</div>
+    {% if session.get("user") %}
+        <div class="user-info">
+            {{ session["user"][1] }}
+            <a href="/logout">Logout</a>
+        </div>
+    {% endif %}
+</header>
+
+<main class="page-content">
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="app-footer">
+    <p>© 2026 Health Risk Prediction | For educational & predictive use only</p>
+</footer>
+
+</body>
+</html>
