@@ -68,6 +68,11 @@ def get_db():
     conn.row_factory = sqlite3.Row
     return conn
 
+@app.route("/health")
+def health():
+    return "OK", 200
+
+
 init_db()
 
 # ==============================
@@ -254,4 +259,5 @@ def result():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
+
 
