@@ -40,13 +40,19 @@ def init_db():
     conn.commit()
     conn.close()
 
-init_db()
 
 
 app = Flask(__name__)
 app.secret_key = "healthrisksecret"
 UPLOAD_FOLDER = "static/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+init_db()
+def get_db():
+    conn = sqlite3.connect("database.db")
+    conn.row_factory = sqlite3.Row
+    return conn
+
 
 
 
@@ -467,6 +473,7 @@ def view_report(report_id):
 
 if __name__ == "__main__":
         app.run(debug=True)
+
 
 
 
