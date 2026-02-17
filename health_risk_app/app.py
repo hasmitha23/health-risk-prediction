@@ -13,21 +13,6 @@ import uuid
 import os
 from werkzeug.utils import secure_filename
 
-
-
-app = Flask(__name__)
-app.secret_key = "healthrisksecret"
-UPLOAD_FOLDER = "static/uploads"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-init_db()
-
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-model = pickle.load(open(os.path.join(BASE_DIR, "model", "health_risk_model.pkl"), "rb"))
-scaler = pickle.load(open(os.path.join(BASE_DIR, "model", "scaler.pkl"), "rb"))
-
-
 # DB Connection
 def init_db():
     conn = sqlite3.connect("database.db")
@@ -54,6 +39,24 @@ def init_db():
 
     conn.commit()
     conn.close()
+
+init_db()
+
+
+app = Flask(__name__)
+app.secret_key = "healthrisksecret"
+UPLOAD_FOLDER = "static/uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+model = pickle.load(open(os.path.join(BASE_DIR, "model", "health_risk_model.pkl"), "rb"))
+scaler = pickle.load(open(os.path.join(BASE_DIR, "model", "scaler.pkl"), "rb"))
+
+
+
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -464,6 +467,7 @@ def view_report(report_id):
 
 if __name__ == "__main__":
         app.run(debug=True)
+
 
 
 
