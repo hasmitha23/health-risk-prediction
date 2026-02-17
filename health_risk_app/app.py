@@ -17,7 +17,9 @@ from reportlab.platypus import (
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import inch
-from reportlab.lib.colors import lightgrey, colors
+from reportlab.lib import colors
+from reportlab.lib.colors import lightgrey
+
 
 # ==============================
 # APP CONFIG
@@ -252,3 +254,4 @@ def result():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
+
