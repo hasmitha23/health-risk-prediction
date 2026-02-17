@@ -439,4 +439,6 @@ def view_report(report_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    if os.environ.get("STREAMLIT_SERVER_RUNNING") != "true":
+        app.run(debug=True)
+
