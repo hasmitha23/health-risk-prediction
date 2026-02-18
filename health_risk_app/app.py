@@ -1,25 +1,28 @@
+# ==============================
+# ENV FIX (CRITICAL FOR RENDER)
+# ==============================
+import os
+os.environ["MPLCONFIGDIR"] = "/tmp/matplotlib"
+
+# ==============================
+# IMPORTS
+# ==============================
 from flask import Flask, render_template, request, redirect, session, send_file
-import sqlite3, os, pickle, json, uuid, io, base64
+import sqlite3, pickle, json, uuid
 import numpy as np
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
-# ===== Matplotlib (Render-safe) =====
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-
-# ===== ReportLab =====
+# ReportLab
 from reportlab.platypus import (
     SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
 )
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import inch
-from reportlab.lib import colors
 from reportlab.lib.colors import lightgrey
-
+from reportlab.lib import colors
 
 # ==============================
 # APP CONFIG
@@ -33,6 +36,13 @@ REPORT_FOLDER = os.path.join(BASE_DIR, "reports")
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(REPORT_FOLDER, exist_ok=True)
+
+# ==============================
+# HEALTH CHECK (RENDER)
+# ==============================
+@app.route("/health")
+def health():
+    return "OK", 200
 
 # ==============================
 # DATABASE
@@ -68,15 +78,10 @@ def get_db():
     conn.row_factory = sqlite3.Row
     return conn
 
-@app.route("/health")
-def health():
-    return "OK", 200
-
-
 init_db()
 
 # ==============================
-# ML MODEL (LAZY LOAD 🔥)
+# ML MODEL (LAZY LOAD – FIX)
 # ==============================
 model = None
 scaler = None
@@ -101,7 +106,8 @@ def login():
 
         db = get_db()
         user = db.execute(
-            "SELECT * FROM users WHERE email = ?", (email,)
+            "SELECT * FROM users WHERE email = ?",
+            (email,)
         ).fetchone()
 
         if user is None:
@@ -135,6 +141,11 @@ def signup():
             error = "Email already exists."
 
     return render_template("signup.html", error=error)
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
 
 # ==============================
 # DASHBOARD
@@ -189,8 +200,8 @@ def predict():
         classes = model.classes_
 
         prob_map = dict(zip(classes, probs))
-        risk_label = str(pred)
 
+        risk_label = str(pred)
         normalization = {
             "Normal": "Low", "LOW": "Low",
             "Moderate": "Moderate", "MODERATE": "Moderate",
@@ -245,7 +256,7 @@ def predict():
     return render_template("predict.html")
 
 # ==============================
-# RESULT
+# RESULT & REPORT PREVIEW
 # ==============================
 @app.route("/result")
 def result():
@@ -253,11 +264,67 @@ def result():
         return redirect("/predict")
     return render_template("result.html", report=session["result"])
 
+@app.route("/report_preview")
+def report_preview():
+    if "result" not in session:
+        return redirect("/predict")
+    return render_template("report_preview.html", report=session["result"])
+
+@app.route("/view-report/<int:report_id>")
+def view_report(report_id):
+    db = get_db()
+    row = db.execute(
+        "SELECT report_data FROM predictions WHERE id = ? AND user_id = ?",
+        (report_id, session["user"]["id"])
+    ).fetchone()
+
+    if not row:
+        return redirect("/dashboard")
+
+    report = json.loads(row["report_data"])
+    return render_template("report_preview.html", report=report)
+
+# ==============================
+# FINAL PDF DOWNLOAD
+# ==============================
+@app.route("/final-download")
+def final_download():
+    if "result" not in session:
+        return redirect("/predict")
+
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    report = session["result"]
+    file_path = os.path.join(REPORT_FOLDER, "clinical_health_report.pdf")
+
+    doc = SimpleDocTemplate(file_path, pagesize=A4)
+    styles = getSampleStyleSheet()
+    content = []
+
+    content.append(Paragraph("Clinical Health Risk Report", styles["Title"]))
+    content.append(Paragraph(f"<b>Report ID:</b> {report['report_id']}", styles["Normal"]))
+    content.append(Paragraph(f"<b>Date:</b> {report['timestamp']}", styles["Normal"]))
+    content.append(Spacer(1, 12))
+
+    probs = report["probs"]
+
+    plt.figure(figsize=(5, 3))
+    plt.bar(["Low", "Moderate", "High"],
+            [probs["Low"], probs["Moderate"], probs["High"]])
+    plt.savefig(os.path.join(REPORT_FOLDER, "bar.png"))
+    plt.close()
+
+    content.append(Image(os.path.join(REPORT_FOLDER, "bar.png"), width=5*inch, height=3*inch))
+
+    doc.build(content)
+
+    return send_file(file_path, as_attachment=True)
+
 # ==============================
 # RUN
 # ==============================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
-
-
