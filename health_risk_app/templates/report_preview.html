@@ -36,7 +36,7 @@
 
     <!-- Bar Chart -->
     <div class="chart-section">
-        <canvas id="riskBar"></canvas>
+        <canvas id="riskBar" style="height:300px;"></canvas>
     </div>
 
     <!-- Download -->
@@ -56,9 +56,10 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-const riskProbs = JSON.parse('{{ report.probs | tojson | safe }}');
+const riskProbs = {{ report.probs | tojson }};
 
 const barCtx = document.getElementById("riskBar").getContext("2d");
+
 new Chart(barCtx, {
     type: "bar",
     data: {
@@ -77,7 +78,10 @@ new Chart(barCtx, {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-            y: { beginAtZero: true, max: 100 }
+            y: {
+                beginAtZero: true,
+                max: 100
+            }
         }
     }
 });
